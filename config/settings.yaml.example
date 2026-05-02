@@ -1,0 +1,64 @@
+# Copy to config/settings.yaml and fill in / adjust.
+# Real settings.yaml is git-ignored. Secrets come from .env via python-dotenv;
+# the ${VAR} placeholders are resolved at startup.
+
+depot:
+  base_currency: EUR
+  starting_cash_eur: 50000
+  goal_eur: 100000
+
+risk:
+  max_single_name_pct: 0.10        # 10% equity cap per name
+  max_total_premium_pct: 0.10      # 10% equity total options premium outstanding
+  max_per_trade_premium_pct: 0.02  # 2% equity per options trade
+  daily_loss_cutoff_pct: -0.03     # halt trading for the day
+  weekly_loss_cutoff_pct: -0.08    # halt + email review
+  cutoff_minutes_before_close: 30
+
+schedule:
+  timezone: Europe/Berlin
+  us_session_minutes: 20           # tick cadence during US RTH
+  de_session_minutes: 20           # tick cadence during Xetra hours
+  weekly_review_dow: sunday
+  weekly_review_time: "19:00"
+  eod_snapshot_time: "22:15"
+
+watchlist:
+  us:
+    - AAPL
+    - MSFT
+    - NVDA
+    - GOOGL
+    - AMZN
+  de:
+    - SAP.DE
+    - SIE.DE
+    - ALV.DE
+    - DTE.DE
+    - BAS.DE
+
+anthropic:
+  api_key: ${ANTHROPIC_API_KEY}
+  model_intraday: claude-sonnet-4-6
+  model_weekly: claude-opus-4-7
+  prompt_cache: true
+
+finnhub:
+  api_key: ${FINNHUB_API_KEY}
+
+dbg:
+  api_key: ${DBG_API_KEY}
+  eurex_refdata_url: https://api.developer.deutsche-boerse.com/prod/accesstot7-referencedata/1.1.0/
+  cache_dir: data/cache/dbg
+
+smtp:
+  host: ${SMTP_HOST}
+  port: ${SMTP_PORT}
+  username: ${SMTP_USERNAME}
+  password: ${SMTP_PASSWORD}
+  from_address: ${SMTP_FROM}
+  to_address: ${SMTP_TO}
+
+logging:
+  level: INFO
+  json: true
