@@ -11,7 +11,7 @@ import sqlite3
 from datetime import date, datetime
 from pathlib import Path
 from types import TracebackType
-from typing import Self, cast
+from typing import Any, Self, cast
 
 from src.depot.money import Money
 from src.depot.portfolio import Portfolio, Position, Right, Trade
@@ -154,6 +154,51 @@ class SQLiteDepotRepository:
         count = row["n"]
         assert isinstance(count, int)
         return count
+
+    # ------------------------------------------------------------- snapshots
+    def record_snapshot(
+        self,
+        *,
+        ts: datetime,
+        equity_eur: Money,
+        cash_eur: Money,
+        exposure_eur: Money,
+        unrealized_pnl_eur: Money,
+    ) -> None:
+        if equity_eur.currency != "EUR":
+            raise ValueError("snapshot equity must be EUR")
+        with self._conn:
+            self._conn.execute(
+                "INSERT OR REPLACE INTO snapshots("
+                "ts, equity_eur_minor, cash_eur_minor, exposure_eur_minor, "
+                "unrealized_pnl_minor) VALUES (?, ?, ?, ?, ?)",
+                (
+                    ts.isoformat(),
+                    equity_eur.minor,
+                    cash_eur.minor,
+                    exposure_eur.minor,
+                    unrealized_pnl_eur.minor,
+                ),
+            )
+
+    def recent_snapshots(self, limit: int = 30) -> list[dict[str, Any]]:
+        rows = self._conn.execute(
+            "SELECT ts, equity_eur_minor, cash_eur_minor, exposure_eur_minor, "
+            "unrealized_pnl_minor FROM snapshots ORDER BY ts DESC LIMIT ?",
+            (limit,),
+        )
+        out: list[dict[str, Any]] = []
+        for row in rows:
+            out.append(
+                {
+                    "ts": datetime.fromisoformat(row["ts"]),
+                    "equity_eur": Money(row["equity_eur_minor"], "EUR"),
+                    "cash_eur": Money(row["cash_eur_minor"], "EUR"),
+                    "exposure_eur": Money(row["exposure_eur_minor"], "EUR"),
+                    "unrealized_pnl_eur": Money(row["unrealized_pnl_minor"], "EUR"),
+                }
+            )
+        return out
 
     # ------------------------------------------------------------- watchlist
     def add_to_watchlist(self, symbol: str, notes: str | None = None) -> None:
