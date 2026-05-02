@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+config/settings.yaml
+
+# Runtime data
+data/depot.sqlite
+data/depot.sqlite-journal
+data/depot.sqlite-wal
+data/depot.sqlite-shm
+data/cache/
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
